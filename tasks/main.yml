@@ -1,0 +1,48 @@
+---
+
+- name: Enable Lustre server repos
+  yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.name }}"
+    baseurl: "{{ item.url }}"
+    gpgkey: "{{ item.gpgkey | default(omit) }}"
+    gpgcheck: "{{ item.gpgcheck | default(omit) }}"
+    enabled: "{{ item.enabled | default(omit) }}"
+    exclude: "{{ item.exclude | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
+  with_items: "{{ lustre_repos | default({}) }}"
+
+#- name: import GPG key for repos
+#  rpm_key:
+#    key: "{{ item.gpgkey }}"
+#  with_items: "{{ yum_repos | default({}) }}"
+#  when: item.gpgkey is defined
+
+# here rpms's can be defined as a local file
+- name: install lustre server rpms
+  yum:
+    name: "{{ lustre_server_packages }}"
+    state: present
+
+#- name: Lustre modprobe.d confings
+#  template: src=lustre.conf.j2 dest=/etc/modprobe.d/lustre.conf
+#            owner=root group=root mode=0644
+#
+#- name: Lustre lnet config
+#  template: src=lnet.conf.j2 dest=/etc/lnet.conf
+#            owner=root group=root mode=0644
+#
+#- name: Enable lnet systemd service
+#  systemd:
+#    name: lnet
+#    state: started
+#    enabled: True
+#
+#- name: Check Lustre networks
+#  command: /usr/sbin/ip link show {{ item }}
+#  with_items: "{{ lustre_network_devices|default([]) }}"
+#  register: lustre_networks
+#  failed_when: False
+#  changed_when: lustre_networks.rc != 0
+#  when: ansible_connection != 'chroot'
+#

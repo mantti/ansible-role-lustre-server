@@ -1,0 +1,11 @@
+---
+
+lustre_repos:
+  - { name: "Lustre-server-mlx", description: "Whamcloud Lustre Patchless", url: "https://downloads.whamcloud.com/public/lustre/lustre-2.10.8-ib/MOFED-4.5-1.0.1.0/el7.6.1810/patchless-ldiskfs-server", gpgcheck: no, enabled: yes }
+  - { name: "Lustre-client-mlx", description: "Whamcloud Lustre Client", url: "https://downloads.whamcloud.com/public/lustre/lustre-2.10.8-ib/MOFED-4.5-1.0.1.0/el7.6.1810/client", gpgcheck: no, enabled: yes }
+  - { name: "Lustre-e2fsprogs", description: "Whamcloud Lustre e2fsprogs", url: "https://downloads.whamcloud.com/public/e2fsprogs/latest/el7", gpgcheck: no, enabled: yes }
+
+lustre_server_packages:
+    - lustre-osd-ldiskfs-mount
+    - kmod-lustre-osd-ldiskfs
+#    - lustre-ldiskfs-dkms
