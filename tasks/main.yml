@@ -12,6 +12,13 @@
     state: "{{ item.state | default(omit) }}"
   with_items: "{{ lustre_repos | default({}) }}"
 
+- name: Let's create Lustre OST directories
+  file:
+    path: "{{ item.dir }}"
+    state: "directory"
+  tags: ost
+  loop: "{{ osts[inventory_hostname] }}"
+
 #- name: import GPG key for repos
 #  rpm_key:
 #    key: "{{ item.gpgkey }}"
