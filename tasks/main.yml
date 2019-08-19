@@ -1,6 +1,7 @@
 ---
 
 - name: Enable Lustre server repos
+  tags: yum
   yum_repository:
     name: "{{ item.name }}"
     description: "{{ item.name }}"
@@ -12,6 +13,12 @@
     state: "{{ item.state | default(omit) }}"
   with_items: "{{ lustre_repos | default({}) }}"
 
+- name: Install Lustre server packages
+  tags: yum
+  yum:
+    name: "{{ lustre_server_packages }}"
+    state: latest
+
 - name: Let's create Lustre OST directories
   file:
     path: "{{ item.dir }}"
@@ -19,6 +26,16 @@
   tags: ost
   loop: "{{ osts[inventory_hostname] }}"
 
+- name: Let's check if the filesystems are already created
+  shell: "blkid -L lustre:OST00{{ item.index }}"
+register: 
+  loop: "{{ osts[inventory_hostname] }}"
+- name: Lets create OST filesystems
+  shell: | 
+    {{ mkfs }} {{ fsname }} {{ mgs }} --ost --index={{ item.index }} {{ item.dev }}
+  tags: ost, mkfs
+  loop: "{{ osts[inventory_hostname] }}"
+  
 #- name: import GPG key for repos
 #  rpm_key:
 #    key: "{{ item.gpgkey }}"
