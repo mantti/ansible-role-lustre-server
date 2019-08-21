@@ -26,28 +26,25 @@
   tags: ost
   loop: "{{ osts[inventory_hostname] }}"
 
-- name: Let's check if the filesystems are already created
-  shell: "blkid -L lustre:OST00{{ item.index }}"
-register: 
+- name: Lets make sure journal-volumes exists
+  tags: ost, mkfs
+  lvol: 
+    lv: "lv_ost{{ item.index }}"
+    vg: "vgroot"
+    state: present
+    size: 4G
   loop: "{{ osts[inventory_hostname] }}"
+
 - name: Lets create OST filesystems
   shell: | 
     {{ mkfs }} {{ fsname }} {{ mgs }} --ost --index={{ item.index }} {{ item.dev }}
   tags: ost, mkfs
   loop: "{{ osts[inventory_hostname] }}"
-  
-#- name: import GPG key for repos
-#  rpm_key:
-#    key: "{{ item.gpgkey }}"
-#  with_items: "{{ yum_repos | default({}) }}"
-#  when: item.gpgkey is defined
-
-# here rpms's can be defined as a local file
-- name: install lustre server rpms
-  yum:
-    name: "{{ lustre_server_packages }}"
-    state: present
-
+  debugger: on_failed
+  when: not ansible_device_links.labels[item.dev[5:]][0] is search( '.*lustre:OST.*' )
+# .labels contains array of labels for blockdevice
+# so we only create new fs, when it doesn't already contain lustre-OST in label
+ 
 #- name: Lustre modprobe.d confings
 #  template: src=lustre.conf.j2 dest=/etc/modprobe.d/lustre.conf
 #            owner=root group=root mode=0644
