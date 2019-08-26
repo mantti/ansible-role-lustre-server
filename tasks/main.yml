@@ -35,36 +35,37 @@
     size: 4G
   loop: "{{ osts[inventory_hostname] }}"
 
-- name: check for existing journalfs
+- name: Let's bruteforce all necessary FSs
   tags: ost, mkfs
-  script: is_lustrefs.sh /dev/mapper/vgroot-lv_ost{{ item.index }}
-#  shell: |
-#    /usr/bin/lsblk /dev/mapper/vgroot-lv_ost{{ item.index }} --fs -n
-  register: journals
+  script: "mk_lustre_ost.sh {{ item.dev }} {{ item.index }}"
+  register: myscript
+  changed_when: "myscript.rc == 2"
   loop: "{{ osts[inventory_hostname] }}"
+
+#- name: check for existing journalfs
+#  tags: ost, mkfs
+#  script: is_lustrefs.sh /dev/mapper/vgroot-lv_ost{{ item.index }}
+##  shell: |
+##    /usr/bin/lsblk /dev/mapper/vgroot-lv_ost{{ item.index }} --fs -n
+#  register: journals
+#  loop: "{{ osts[inventory_hostname] }}"
   
-- name: Whats the result
-  tags: ost, mkfs
-  debug:
-    var: item
-  loop: "{{ journals.results }}"
-
-- name: Lets create journal filesystems
-  tags: ost, mkfs
-  filesystem: 
-    dev: /dev/mapper/vgroot-lv_ost{{ item.index }}
-    fstype: ext2
-    opts: "-b 4096 -O journal_dev -L OST_{{ item.index }}_jrnl"
-  loop: "{{ osts[inventory_hostname] }}"
-#  when: ansible_device_links.labels == {} or not ansible_device_links.labels[item.dev[5:]][0] is search( 'OST_.*_jrnl' ) 
-
-- name: Lets create OST filesystems
-  shell: | 
-    {{ mkfs }} {{ fsname }} {{ mgs }} --ost --index={{ item.index }} {{ item.dev }}
-  tags: ost, mkfs
-  loop: "{{ osts[inventory_hostname] }}"
-  debugger: on_failed
-  when: ansible_device_links.labels == {} or not ansible_device_links.labels[item.dev[5:]][0] is search( '.*lustre:OST.*' ) 
+#- name: Lets create journal filesystems
+#  tags: ost, mkfs
+#  filesystem: 
+#    dev: /dev/mapper/vgroot-lv_ost{{ item.index }}
+#    fstype: ext2
+#    opts: "-b 4096 -O journal_dev -L OST_{{ item.index }}_jrnl"
+#  loop: "{{ osts[inventory_hostname] }}"
+##  when: ansible_device_links.labels == {} or not ansible_device_links.labels[item.dev[5:]][0] is search( 'OST_.*_jrnl' ) 
+#
+#- name: Lets create OST filesystems
+#  shell: | 
+#    {{ mkfs }} {{ fsname }} {{ mgs }} --ost --index={{ item.index }} {{ item.dev }}
+#  tags: ost, mkfs
+#  loop: "{{ osts[inventory_hostname] }}"
+#  debugger: on_failed
+#  when: ansible_device_links.labels == {} or not ansible_device_links.labels[item.dev[5:]][0] is search( '.*lustre:OST.*' ) 
 
 # .labels contains array of labels for blockdevice
 # so we only create new fs, when it doesn't already contain lustre-OST in label
