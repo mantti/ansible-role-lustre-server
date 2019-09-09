@@ -47,6 +47,16 @@
   openssh_keypair: path="/root/.ssh/lustre-im" type=ed25519 state=present
   when: "lim_manager| default (False)"
 
+- name: Instruct ssh to use the new key
+  tags: lim
+  lineinfile:
+    dest=/root/.ssh/config 
+    line='IdentityFile ~/.ssh/lustre-im'
+    create=True
+    state=present
+    regexp='.*IdentityFile .*'
+  when: "lim_manager| default (False)"
+
 - name: Let's fetch pub key for population.
   tags: lim
   fetch: src="/root/.ssh/lustre-im.pub" dest="files/lustre-im.pub" flat=yes
