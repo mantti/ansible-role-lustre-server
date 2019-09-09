@@ -42,6 +42,20 @@
   changed_when: "myscript.rc == 2"
   loop: "{{ osts[inventory_hostname] }}"
 
+- name: Create new kewpair for Lustre IM
+  tags: lim
+  openssh_keypair: path="/root/.ssh/lustre-im" type=ed25519 state=present
+  when: "lim_manager| default (False)"
+
+- name: Let's fetch pub key for population.
+  tags: lim
+  fetch: src="/root/.ssh/lustre-im.pub" dest="files/lustre-im.pub" flat=yes
+  when: "lim_manager| default (False)"
+
+- name: Lets populate lim-pubkey to nodes
+  tags: lim
+  authorized_key: key="{{ lookup('file', 'files/lustre-im.pub') }}" comment="Lustre Integrated Manager" state=present user=root
+
 #- name: check for existing journalfs
 #  tags: ost, mkfs
 #  script: is_lustrefs.sh /dev/mapper/vgroot-lv_ost{{ item.index }}
