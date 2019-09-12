@@ -30,7 +30,7 @@ create_lustre_fs () {
 		echo Lustre fs already created to ${DEVICE} >> /dev/stderr
         exit 0
 	else
-		/usr/sbin/mkfs.lustre --fsname=lustre --mgsnode=10.2.20.10@o2ib --mgsnode=10.2.20.11@o2ib --ost --index=${INDEX} --mkfsoptions="-i 8192 -J device=/dev/${VG}/${LV_NAME}" ${DEVICE}
+		/usr/sbin/mkfs.lustre --fsname=lustre --mgsnode=10.2.20.10@o2ib --mgsnode=10.2.20.11@o2ib --ost --index=${INDEX} --mkfsoptions="-E stride=262144,stripe_width=262144 -i 8192 -J device=/dev/${VG}/${LV_NAME}" ${DEVICE}
 	fi
 }
 create_journal_fs
