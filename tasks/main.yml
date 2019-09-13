@@ -19,6 +19,46 @@
     name: "{{ lustre_server_packages }}"
     state: latest
 
+- name: Lustre modprobe.d confings
+  tags: lnet
+  template: src=lustre.conf.j2 dest=/etc/modprobe.d/lustre.conf
+            owner=root group=root mode=0644
+
+- name: Lustre lnet config
+  tags: lnet
+  template: src=lnet.conf.j2 dest=/etc/lnet.conf
+            owner=root group=root mode=0644
+
+- name: Enable lnet systemd service
+  tags: lnet
+  systemd:
+    name: lnet
+    state: started
+    enabled: True
+
+- name: Check Lustre networks
+  tags: lnet
+  command: /usr/sbin/ip link show {{ item }}
+  with_items: "{{ lustre_network_devices|default([]) }}"
+  register: lustre_networks
+  failed_when: False
+  changed_when: lustre_networks.rc != 0
+  when: ansible_connection != 'chroot'
+
+- name: Bring up Lustre networks if down
+  tags: lnet
+  command: /usr/sbin/ifup {{ item[1] }}
+  when: item[0].rc != 0
+  with_nested:
+    - "{{ lustre_networks.results }}"
+    - "{{ lustre_network_devices|default([]) }}"
+  when: ansible_connection != 'chroot'
+
+- name: Load Lustre modules
+  tags: lnet
+  modprobe: name=lustre
+  when: ansible_connection != 'chroot'
+
 - name: Let's create Lustre OST directories
   file:
     path: "{{ item.dir }}"
@@ -42,6 +82,17 @@
   changed_when: "myscript.rc == 2"
   loop: "{{ osts[inventory_hostname] }}"
 
+- name: Add OSTS to /etc/fstab
+  tags: ost, fstab
+  mount: 
+    backup: yes
+    boot: yes
+    fstype: lustre
+    path: "{{item.dir}}"
+    src: "{{item.dev}}"
+    state: present
+  loop: "{{ osts[inventory_hostname] }}"
+
 - name: Create new kewpair for Lustre IM
   tags: lim
   openssh_keypair: path="/root/.ssh/lustre-im" type=ed25519 state=present
@@ -51,7 +102,7 @@
   tags: lim
   lineinfile:
     dest=/root/.ssh/config 
-    line='IdentityFile ~/.ssh/lustre-im'
+    line='IdentityFile /root/.ssh/lustre-im'
     create=True
     state=present
     regexp='.*IdentityFile .*'
