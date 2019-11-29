@@ -1,7 +1,7 @@
 ---
 
 - name: Enable Lustre server repos
-  tags: yum
+  tags: yum, repos
   yum_repository:
     name: "{{ item.name }}"
     description: "{{ item.name }}"
@@ -12,6 +12,34 @@
     exclude: "{{ item.exclude | default(omit) }}"
     state: "{{ item.state | default(omit) }}"
   with_items: "{{ lustre_repos | default({}) }}"
+
+- name: Install Lustre kernel package
+  tags: yum, kernel
+  yum:
+    name: "{{ lustre_kernel_pkg }}"
+    state: installed
+  when: inventory_hostname in groups.lustre_servers
+
+- name: Check for reboot hint.
+  tags: kernel
+  shell: needs-restarting -r
+  register: needs_restart
+  when: ansible_distribution_major_version == "7"
+  failed_when: needs_restart.rc > 1
+
+- name: Reboot the server for kernel update
+  tags: kernel
+  reboot:
+    msg: "Rebooting to new lustre kernel"
+  when:
+     - needs_restart.rc == 1
+
+- name: Install Lustre server phase 1 Mellanox-packages
+  tags: kernel, ph1
+  yum: 
+    name: "{{ lustre_ph1_packages }}"
+    state: installed
+    disablerepo: Mellanox-IB
 
 - name: Install Lustre server packages
   tags: yum
@@ -52,7 +80,7 @@
   with_nested:
     - "{{ lustre_networks.results }}"
     - "{{ lustre_network_devices|default([]) }}"
-  when: ansible_connection != 'chroot'
+    #  when: ansible_connection != 'chroot'
 
 - name: Load Lustre modules
   tags: lnet
