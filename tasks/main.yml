@@ -47,7 +47,7 @@
     name: "{{ lustre_server_packages }}"
     state: latest
 
-- name: Lustre modprobe.d confings
+- name: Lustre modprobe.d configs
   tags: lnet
   template: src=lustre.conf.j2 dest=/etc/modprobe.d/lustre.conf
             owner=root group=root mode=0644
@@ -121,7 +121,7 @@
     state: present
   loop: "{{ osts[inventory_hostname] }}"
 
-- name: Create new kewpair for Lustre IM
+- name: Create new keypair for Lustre IM
   tags: lim
   openssh_keypair: path="/root/.ssh/lustre-im" type=ed25519 state=present
   when: "lim_manager| default (False)"
