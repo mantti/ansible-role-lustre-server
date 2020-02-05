@@ -4,3 +4,15 @@ net:
         - nid: "{{ ib_ip_addr }}@o2ib"
           interfaces:
                 0: "{{ lustre_network_devices[0] }}"
+{% if lustre_interface_tunables is defined %}
+          tunables:
+{% for key, value in lustre_interface_tunables.items() %}
+            {{ key }}: {{ value }}
+{% endfor %}
+{% endif %}
+{% if lustre_lnd_tunables is defined %}
+          LND tunables:
+{% for key, value in lustre_lnd_tunables.items() %}
+            {{ key }}: {{ value }}
+{% endfor %}
+{% endif %}

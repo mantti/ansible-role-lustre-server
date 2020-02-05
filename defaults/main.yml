@@ -27,3 +27,17 @@ lustre_ph1_packages:
   - ibutils-1.5.7.1-0.12.gdcaeae2.47100
   - opensm-5.5.0.MLNX20190923.1c78385-0.1.47100
 
+lustre_interface_tunables:
+  peer_timeout: 100
+  peer_credits: 16
+  peer_buffer_credits: 0
+  credits: 2560
+  CPT: "[0,0]"
+
+lustre_lnd_tunables:
+  peercredits_hiw: 31
+  map_on_demand: 256
+  concurrent_sends: 63
+  fmr_pool_size: 1280
+  fmr_flush_trigger: 1024
+  fmr_cache: 1
