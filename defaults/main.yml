@@ -1,7 +1,7 @@
 ---
 
 lustre_repos:
-  - { name: "Lustre-server-mlx", description: "Whamcloud Lustre Patchless", url: "https://downloads.whamcloud.com/public/lustre/lustre-2.12.3-ib/MOFED-4.7-1.0.0.1/el7.7.1908/server", gpgcheck: no, enabled: yes }
+  - { name: "Lustre-server-mlx", description: "Whamcloud Lustre Patched", url: "https://downloads.whamcloud.com/public/lustre/lustre-2.12.3-ib/MOFED-4.7-1.0.0.1/el7.7.1908/server", gpgcheck: no, enabled: yes }
   - { name: "Lustre-client-mlx", description: "Whamcloud Lustre Client", url: "https://downloads.whamcloud.com/public/lustre/lustre-2.12.3-ib/MOFED-4.7-1.0.0.1/el7.7.1908/client", gpgcheck: no, enabled: no }
   - { name: "Lustre-e2fsprogs", description: "Whamcloud Lustre e2fsprogs", url: "https://downloads.whamcloud.com/public/e2fsprogs/latest/el7", gpgcheck: no, enabled: yes }
 
