@@ -15,17 +15,18 @@ fsname: "--fsname=lustre"
 mgs: "--mgsnode=10.2.20.10@o2ib --mgsnode=10.2.20.11@o2ib"
 lustre_kernel_pkg: kernel-3.10.0-1062.1.1.el7_lustre
 lustre_ph1_packages:
-  - bpftool-3.10.0-1062.1.1.el7_lustre
-  - ibutils2-2.1.1-0.110.MLNX20190922.gd4efc48.47100
-  - libibmad-5.4.0.MLNX20190423.1d917ae-0.1.47100
-  - libibumad-43.1.1.MLNX20190905.1080879-0.1.47100
-  - libibverbs-41mlnx1-OFED.4.7.0.0.2.47100
-  - libibverbs-utils-41mlnx1-OFED.4.7.0.0.2.47100
-  - librdmacm-41mlnx1-OFED.4.7.0.3.3.47100
-  - mlnx-ofa_kernel-4.7-OFED.4.7.1.0.0.1.g1c4bf42
-  - kmod-mlnx-ofa_kernel-4.7-OFED.4.7.1.0.0.1.g1c4bf42
-  - ibutils-1.5.7.1-0.12.gdcaeae2.47100
-  - opensm-5.5.0.MLNX20190923.1c78385-0.1.47100
+  - 
+#  - bpftool-3.10.0-1062.1.1.el7_lustre
+#  - ibutils2-2.1.1-0.110.MLNX20190922.gd4efc48.47100
+#  - libibmad-5.4.0.MLNX20190423.1d917ae-0.1.47100
+#  - libibumad-43.1.1.MLNX20190905.1080879-0.1.47100
+#  - libibverbs-41mlnx1-OFED.4.7.0.0.2.47100
+#  - libibverbs-utils-41mlnx1-OFED.4.7.0.0.2.47100
+#  - librdmacm-41mlnx1-OFED.4.7.0.3.3.47100
+#  - mlnx-ofa_kernel-4.7-OFED.4.7.1.0.0.1.g1c4bf42
+#  - kmod-mlnx-ofa_kernel-4.7-OFED.4.7.1.0.0.1.g1c4bf42
+#  - ibutils-1.5.7.1-0.12.gdcaeae2.47100
+#  - opensm-5.5.0.MLNX20190923.1c78385-0.1.47100
 
 lustre_interface_tunables:
   peer_timeout: 100
