@@ -121,6 +121,12 @@
     state: present
   loop: "{{ osts[inventory_hostname] }}"
 
+- name: Add OST to named disk_pool
+  tags: ost, mount
+  script: "lustre-diskpool.sh {{ item.pool }} OST00{{ item.index | regex_replace('0x') }} "
+  loop: "{{ osts[inventory_hostname] }}"
+  delegate_to: "{{ lustre_mgs }}"
+
 - name: Create new keypair for Lustre IM
   tags: lim
   openssh_keypair: path="/root/.ssh/lustre-im" type=ed25519 state=present
