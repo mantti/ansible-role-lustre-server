@@ -1,7 +1,7 @@
 ---
 
 - name: Enable Lustre server repos
-  tags: yum, repos
+  tags: yum, kernel, repos
   yum_repository:
     name: "{{ item.name }}"
     description: "{{ item.name }}"
@@ -18,13 +18,12 @@
   yum:
     name: "{{ lustre_kernel_pkg }}"
     state: installed
-  when: inventory_hostname in groups.lustre_servers
+  when: inventory_hostname in groups.lustre_servers and only_kernel|default(false)
 
 - name: Check for reboot hint.
   tags: kernel
   shell: needs-restarting -r
   register: needs_restart
-  when: ansible_distribution_major_version == "7"
   failed_when: needs_restart.rc > 1
 
 - name: Reboot the server for kernel update
@@ -33,29 +32,49 @@
     msg: "Rebooting to new lustre kernel"
   when:
      - needs_restart.rc == 1
+     - only_kernel|default(false)
 
-- name: Install Lustre server phase 1 Mellanox-packages
+- name: Install Lustre server phase 1 Whamcloud-packages
   tags: kernel, ph1
   yum: 
     name: "{{ lustre_ph1_packages }}"
     state: installed
-    disablerepo: Mellanox-IB
+  when: only_kernel|default(false)
+  #  disablerepo: Mellanox-IB
+
+- name: Install Lustre-server Mellanox-packages
+  tags: ph1 
+  yum:
+    name: "{{ mellanox_packages }}"
+    enablerepo: "{{ mlnx_ofed_repo }}"
+    state: installed
+  when: not only_kernel
+
+- name: Restart openibd
+  tags: ph1
+  service: 
+    name: openibd
+    state: restarted
+  when: only_kernel|default(false)
 
 - name: Install Lustre server packages
   tags: yum
   yum:
     name: "{{ lustre_server_packages }}"
     state: latest
+  when: not only_kernel
 
 - name: Lustre modprobe.d configs
   tags: lnet
   template: src=lustre.conf.j2 dest=/etc/modprobe.d/lustre.conf
             owner=root group=root mode=0644
+  when: not only_kernel
 
 - name: Lustre lnet config
   tags: lnet
   template: src=lnet.conf.j2 dest=/etc/lnet.conf
             owner=root group=root mode=0644
+  when: not only_kernel
 
 - name: Enable lnet systemd service
   tags: lnet
@@ -63,6 +82,7 @@
     name: lnet
     state: started
     enabled: True
+  when: not only_kernel
 
 - name: Check Lustre networks
   tags: lnet
@@ -71,12 +91,13 @@
   register: lustre_networks
   failed_when: False
   changed_when: lustre_networks.rc != 0
-  when: ansible_connection != 'chroot'
+  when: not only_kernel
 
 - name: Bring up Lustre networks if down
   tags: lnet
   command: /usr/sbin/ifup {{ item[1] }}
-  when: item[0].rc != 0
+ # when: item[0].rc != 0 and not only_kernel
+  when: not only_kernel
   with_nested:
     - "{{ lustre_networks.results }}"
     - "{{ lustre_network_devices|default([]) }}"
@@ -85,7 +106,7 @@
 - name: Load Lustre modules
   tags: lnet
   modprobe: name=lustre
-  when: ansible_connection != 'chroot'
+  when: ansible_connection != 'chroot' and not only_kernel
 
 - name: Let's create Lustre OST directories
   file:
@@ -93,6 +114,7 @@
     state: "directory"
   tags: ost
   loop: "{{ osts[inventory_hostname] }}"
+  when: not only_kernel and osts[inventory_hostname] is defined
 
 - name: Lets make sure journal-volumes exists
   tags: ost, mkfs
@@ -102,6 +124,7 @@
     state: present
     size: 4G
   loop: "{{ osts[inventory_hostname] }}"
+  when: not only_kernel and osts[inventory_hostname] is defined
 
 - name: Let's bruteforce all necessary FSs
   tags: ost, mkfs
@@ -109,6 +132,7 @@
   register: myscript
   changed_when: "myscript.rc == 2"
   loop: "{{ osts[inventory_hostname] }}"
+  when: not only_kernel and osts[inventory_hostname] is defined
 
 - name: Add OSTS to /etc/fstab
   tags: ost, fstab
@@ -120,17 +144,19 @@
     src: "{{item.dev}}"
     state: present
   loop: "{{ osts[inventory_hostname] }}"
+  when: not only_kernel and osts[inventory_hostname] is defined 
 
 - name: Add OST to named disk_pool
   tags: ost, mount
   script: "lustre-diskpool.sh {{ item.pool }} OST00{{ item.index | regex_replace('0x') }} "
   loop: "{{ osts[inventory_hostname] }}"
   delegate_to: "{{ lustre_mgs }}"
+  when: not only_kernel and osts[inventory_hostname] is defined
 
 - name: Create new keypair for Lustre IM
   tags: lim
   openssh_keypair: path="/root/.ssh/lustre-im" type=ed25519 state=present
-  when: "lim_manager| default (False)"
+  when: "lim_manager| default (False) and only_kernel|default(false)"
 
 - name: Instruct ssh to use the new key
   tags: lim
@@ -140,16 +166,17 @@
     create=True
     state=present
     regexp='.*IdentityFile .*'
-  when: "lim_manager| default (False)"
+  when: "lim_manager| default (False) and only_kernel|default(false)"
 
 - name: Let's fetch pub key for population.
   tags: lim
   fetch: src="/root/.ssh/lustre-im.pub" dest="files/lustre-im.pub" flat=yes
-  when: "lim_manager| default (False)"
+  when: "lim_manager| default (False) and only_kernel|default(false)"
 
 - name: Lets populate lim-pubkey to nodes
   tags: lim
   authorized_key: key="{{ lookup('file', 'files/lustre-im.pub') }}" comment="Lustre Integrated Manager" state=present user=root
+  when: "lim_manager| default (False) and only_kernel|default(false)"
 
 #- name: check for existing journalfs
 #  tags: ost, mkfs
