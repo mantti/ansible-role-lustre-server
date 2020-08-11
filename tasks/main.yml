@@ -119,7 +119,7 @@
 - name: Lets make sure journal-volumes exists
   tags: ost, mkfs
   lvol: 
-    lv: "lv_ost_{{ item.index }}_jrnl"
+    lv: "{{ item.journal | default('No') }}"
     vg: "vgroot"
     state: present
     size: 4G
@@ -128,9 +128,10 @@
 
 - name: Let's bruteforce all necessary FSs
   tags: ost, mkfs
-  script: "mk_lustre_ost.sh {{ item.dev }} {{ item.index }}"
+  script: "mk_lustre_ost.sh {{ item.dev }} {{ item.index }} {{ item.journal | default('No') }}"
   register: myscript
-  changed_when: "myscript.rc == 2"
+  changed_when: myscript.rc == 2
+  failed_when: myscript.rc != 0 and myscript.rc != 2
   loop: "{{ osts[inventory_hostname] }}"
   when: not only_kernel and osts[inventory_hostname] is defined
 
@@ -141,7 +142,7 @@
     boot: yes
     fstype: lustre
     path: "{{item.dir}}"
-    src: "{{item.dev}}"
+    src: "UUID={{ ansible_facts['devices'][item.dev | regex_replace('/dev/') ]['links']['uuids'][0] }}"
     state: present
   loop: "{{ osts[inventory_hostname] }}"
   when: not only_kernel and osts[inventory_hostname] is defined 
