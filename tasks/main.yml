@@ -136,14 +136,14 @@
   when: not only_kernel and osts[inventory_hostname] is defined
 
 - name: Add OSTS to /etc/fstab
-  tags: ost, fstab
+  tags: ost, fstab, mount
   mount: 
     backup: yes
     boot: yes
     fstype: lustre
     path: "{{item.dir}}"
     src: "UUID={{ ansible_facts['devices'][item.dev | regex_replace('/dev/') ]['links']['uuids'][0] }}"
-    state: present
+    state: mounted
   loop: "{{ osts[inventory_hostname] }}"
   when: not only_kernel and osts[inventory_hostname] is defined 
 
