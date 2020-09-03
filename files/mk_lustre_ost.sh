@@ -5,9 +5,9 @@
 LOKI=/tmp/mklustrefs.log
 echo " === `date \"+%F %T\"` ===" >> $LOKI
 echo "Sain parametrit $1 $2 $3" >> $LOKI
-DEVICE=$1
-INDEX=$2
-
+DEVICE="$1"
+INDEX="$2"
+JOURNAL="$3"
 JOURNAL_SIZE=4M
 BLOCKSIZE=4096
 
@@ -32,7 +32,8 @@ create_journal_fs () {
 		echo Lustre journal already created to /dev/${VG}/${LV_NAME} >> $LOKI
         return 0
 	else
-        echo "Creating journal /dev/${VG}/${LV_NAME}" >> $LOKI
+        echo "Creating journal /dev/${VG}/${LV_NAME}:" >> $LOKI
+		echo " - mkfs -t ext2 -b ${BLOCKSIZE} -O journal_dev -L OST_${INDEX}_jrnl /dev/${VG}/${LV_NAME}" >> $LOKI
 		mkfs -t ext2 -b ${BLOCKSIZE} -O journal_dev -L OST_${INDEX}_jrnl /dev/${VG}/${LV_NAME}
 	fi
 	return 2
@@ -45,19 +46,20 @@ create_lustre_fs () {
         return 0
 	else
         echo "Creating lustrefs ${DEVICE}" >> $LOKI
+		echo " - mkfs.lustre --replace --fsname=lustre --mgsnode=10.2.20.10@o2ib --mgsnode=10.2.20.11@o2ib --ost --index=${INDEX} --mkfsoptions=\"-E stride=262144,stripe_width=262144 -i 8192 ${JOURNAL}\" ${DEVICE} " >> $LOKI
 		/usr/sbin/mkfs.lustre --replace --fsname=lustre --mgsnode=10.2.20.10@o2ib --mgsnode=10.2.20.11@o2ib --ost --index=${INDEX} --mkfsoptions="-E stride=262144,stripe_width=262144 -i 8192 ${JOURNAL}" ${DEVICE}
 	fi
 	return 2
 }
 if [[ "$3" != "No" ]] ; then 
     create_journal_fs
-    JOURNAL=$?
+    JOURNALFS=$?
 fi
 
 create_lustre_fs
 LDISKFS=$?
 
-if [[ "$JOURNAL" == "2" || "$LDISKFS" == "2" ]] 
+if [[ "$JOURNALFS" == "2" || "$LDISKFS" == "2" ]] 
 then 
     echo "Returning value 2" >> $LOKI
 	exit 2
