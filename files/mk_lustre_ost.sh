@@ -46,8 +46,8 @@ create_lustre_fs () {
         return 0
 	else
         echo "Creating lustrefs ${DEVICE}" >> $LOKI
-		echo " - mkfs.lustre --replace --fsname=lustre --mgsnode=10.2.20.10@o2ib --mgsnode=10.2.20.11@o2ib --ost --index=${INDEX} --mkfsoptions=\"-E stride=262144,stripe_width=262144 -i 8192 ${JOURNAL}\" ${DEVICE} " >> $LOKI
-		/usr/sbin/mkfs.lustre --replace --fsname=lustre --mgsnode=10.2.20.10@o2ib --mgsnode=10.2.20.11@o2ib --ost --index=${INDEX} --mkfsoptions="-E stride=262144,stripe_width=262144 -i 8192 ${JOURNAL}" ${DEVICE}
+		echo " - mkfs.lustre --replace --fsname=lustre --index=${INDEX} --ost --mgsnode=10.2.20.10@o2ib:10.2.20.11@o2ib --mkfsoptions=\"-E stride=262144,stripe_width=262144 -i 8192 ${JOURNAL}\" ${DEVICE} " >> $LOKI
+		/usr/sbin/mkfs.lustre --replace --fsname=lustre --index=${INDEX} --ost --mgsnode=10.2.20.10@o2ib:10.2.20.11@o2ib --mkfsoptions="-E stride=262144,stripe_width=262144 -i 8192 ${JOURNAL}" ${DEVICE}
 	fi
 	return 2
 }
