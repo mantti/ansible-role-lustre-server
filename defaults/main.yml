@@ -43,7 +43,7 @@ mellanox_packages:
 
 lustre_interface_tunables:
   peer_timeout: 100
-  peer_credits: 16
+  peer_credits: 8
   peer_buffer_credits: 0
   credits: 2560
   peercredits_hiw: 31
