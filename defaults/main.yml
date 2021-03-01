@@ -1,12 +1,5 @@
 ---
 
-lustre_repos:
-  - { name: "Lustre-server-mlx", description: "Whamcloud Lustre Server patched", url: "https://downloads.whamcloud.com/public/lustre/lustre-2.12.4-ib/MOFED-4.7-3.2.9.0/el7/server", gpgcheck: no, enabled: no }
-  - { name: "Lustre-client-mlx", description: "Whamcloud Lustre Client", url: "https://downloads.whamcloud.com/public/lustre/lustre-2.12.4-ib/MOFED-4.7-3.2.9.0/el7/client", gpgcheck: no, enabled: no }
-  - { name: "Lustre-e2fsprogs", description: "Whamcloud Lustre e2fsprogs", url: "https://downloads.whamcloud.com/public/e2fsprogs/latest/el7", gpgcheck: no, enabled: yes }
-  
-  #- { name: "Lustre-server-local", description: "Local Lustre build", url: "{{ kickstart_server_ip }}/Lustre-repo", gpgcheck: no, enabled: yes }
-  #- { name: "Lustre-server-mlx", description: "Whamcloud Lustre Patched", url: "https://downloads.whamcloud.com/public/lustre/lustre-2.12.3-ib/MOFED-4.7-1.0.0.1/el7.7.1908/server", gpgcheck: no, enabled: yes }
 lustre_server_packages:
     - lustre-osd-ldiskfs-mount
     - kmod-lustre-osd-ldiskfs
@@ -15,7 +8,7 @@ lustre_server_packages:
 mkfs: "/usr/sbin/mkfs.lustre"
 fsname: "--fsname=lustre"
 mgs: "--mgsnode=10.2.20.10@o2ib --mgsnode=10.2.20.11@o2ib"
-lustre_kernel_pkg: kernel-3.10.0-1062.9.1.el7_lustre
+lustre_kernel_pkg: kernel-3.10.0-1160.2.1.el7_lustre
 lustre_ph1_packages:
   - kmod-mlnx-ofa_kernel
   - mlnx-ofa_kernel
