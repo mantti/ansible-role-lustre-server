@@ -1,7 +1,7 @@
 ---
 
 - name: Enable Lustre server repos
-  tags: yum, kernel, repos
+  tags: yum, kernel, repos, update
   yum_repository:
     name: "{{ item.name }}"
     description: "{{ item.name }}"
@@ -14,20 +14,20 @@
   with_items: "{{ lustre_repos | default({}) }}"
 
 - name: Install Lustre kernel package
-  tags: yum, kernel
+  tags: yum, kernel, update
   yum:
     name: "{{ lustre_kernel_pkg }}"
     state: installed
   when: inventory_hostname in groups.lustre_servers and only_kernel|default(false)
 
 - name: Check for reboot hint.
-  tags: kernel
+  tags: kernel, update
   shell: needs-restarting -r
   register: needs_restart
   failed_when: needs_restart.rc > 1
 
 - name: Reboot the server for kernel update
-  tags: kernel
+  tags: kernel, update
   reboot:
     msg: "Rebooting to new lustre kernel"
   when:
@@ -35,7 +35,7 @@
      - only_kernel|default(false)
 
 - name: Install Lustre server phase 1 Whamcloud-packages
-  tags: kernel, ph1
+  tags: kernel, ph1, update
   yum: 
     name: "{{ lustre_ph1_packages }}"
     state: installed
@@ -43,7 +43,7 @@
   #  disablerepo: Mellanox-IB
 
 - name: Install Lustre-server Mellanox-packages
-  tags: ph1 
+  tags: ph1, update
   yum:
     name: "{{ mellanox_packages }}"
     enablerepo: "{{ mlnx_ofed_repo }}"
@@ -51,33 +51,33 @@
   when: not only_kernel
 
 - name: Restart openibd
-  tags: ph1
+  tags: ph1, update
   service: 
     name: openibd
     state: restarted
   when: only_kernel|default(false)
 
 - name: Install Lustre server packages
-  tags: yum
+  tags: yum, update
   yum:
     name: "{{ lustre_server_packages }}"
     state: latest
   when: not only_kernel
 
 - name: Lustre modprobe.d configs
-  tags: lnet
+  tags: lnet, update
   template: src=lustre.conf.j2 dest=/etc/modprobe.d/lustre.conf
             owner=root group=root mode=0644
   when: not only_kernel
 
 - name: Lustre lnet config
-  tags: lnet
+  tags: lnet, update
   template: src=lnet.conf.j2 dest=/etc/lnet.conf
             owner=root group=root mode=0644
   when: not only_kernel
 
 - name: Enable lnet systemd service
-  tags: lnet
+  tags: lnet, update
   systemd:
     name: lnet
     state: started
@@ -85,7 +85,7 @@
   when: not only_kernel
 
 - name: Check Lustre networks
-  tags: lnet
+  tags: lnet, update
   command: /usr/sbin/ip link show {{ item }}
   with_items: "{{ lustre_network_devices|default([]) }}"
   register: lustre_networks
@@ -94,7 +94,7 @@
   when: not only_kernel
 
 - name: Bring up Lustre networks if down
-  tags: lnet
+  tags: lnet, update
   command: /usr/sbin/ifup {{ item[1] }}
  # when: item[0].rc != 0 and not only_kernel
   when: not only_kernel
@@ -104,7 +104,7 @@
     #  when: ansible_connection != 'chroot'
 
 - name: Load Lustre modules
-  tags: lnet
+  tags: lnet, update
   modprobe: name=lustre
   when: ansible_connection != 'chroot' and not only_kernel
 
