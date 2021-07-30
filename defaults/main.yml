@@ -1,10 +1,10 @@
 ---
 
 lustre_server_packages:
-    - lustre-osd-ldiskfs-mount
-    - kmod-lustre-osd-ldiskfs
-    - lustre
-#    - lustre-ldiskfs-dkms
+  - lustre-osd-ldiskfs-mount
+  - kmod-lustre-osd-ldiskfs
+  - lustre
+#  - lustre-ldiskfs-dkms
 mkfs: "/usr/sbin/mkfs.lustre"
 fsname: "--fsname=lustre"
 mgs: "--mgsnode=10.2.20.10@o2ib --mgsnode=10.2.20.11@o2ib"
