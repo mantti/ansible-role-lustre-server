@@ -20,6 +20,14 @@
     state: installed
   when: inventory_hostname in groups.lustre_servers and only_kernel|default(false)
 
+- name: Update all except kernel packages
+  tags: yum, update
+  yum:
+    name: "*"
+    exclude: "kernel*"
+    state: latest
+  when: not only_kernel
+
 - name: Check for reboot hint.
   tags: kernel, update
   shell: needs-restarting -r
@@ -32,13 +40,12 @@
     msg: "Rebooting to new lustre kernel"
   when:
      - needs_restart.rc == 1
-     - only_kernel|default(false)
 
 - name: Install Lustre server phase 1 Whamcloud-packages
   tags: kernel, ph1, update
   yum: 
     name: "{{ lustre_ph1_packages }}"
-    state: installed
+    state: latest
   when: only_kernel|default(false)
   #  disablerepo: Mellanox-IB
 
@@ -47,7 +54,7 @@
   yum:
     name: "{{ mellanox_packages }}"
     enablerepo: "{{ mlnx_ofed_repo }}"
-    state: installed
+    state: latest
   when: not only_kernel
 
 - name: Restart openibd

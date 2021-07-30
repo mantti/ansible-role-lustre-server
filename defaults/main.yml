@@ -19,6 +19,7 @@ lustre_ph1_packages:
   - libibverbs-utils
   - librdmacm
   - librdmacm-utils
+  - e2fsprogs
 
 mellanox_packages:
   - infiniband-diags
