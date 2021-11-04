@@ -4,5 +4,5 @@ lustre_repos:
   - { name: "Lustre-server-mlx", description: "Whamcloud Lustre Server patched", url: "https://downloads.whamcloud.com/public/lustre/lustre-2.12.6-ib/MOFED-4.9-2.2.4.0/el7/server", gpgcheck: no, enabled: yes }
   - { name: "Lustre-client-mlx", description: "Whamcloud Lustre Client", url: "https://downloads.whamcloud.com/public/lustre/lustre-2.12.6-ib/MOFED-4.9-2.2.4.0/el7/client", gpgcheck: no, enabled: no }
   - { name: "Lustre-e2fsprogs", description: "Whamcloud Lustre e2fsprogs", url: "https://downloads.whamcloud.com/public/e2fsprogs/latest/el7", gpgcheck: no, enabled: yes }
-  - { name: "Mellanox-IB", url: "http://{{ kickstart_server_ip }}/Mellanox-repo/lustre-server", enabled: "0", gpgcheck: "0"}
+  - { name: "Mellanox-IB", url: "http://{{ kickstart_server_ip }}/Mellanox-repo/lustre-server", enabled: "1", gpgcheck: "0"}
 
