@@ -1,7 +1,7 @@
 ---
 
 - name: Enable Lustre server repos
-  tags: yum, kernel, repos, update
+  tags: yum, kernel, repos, update, yum, lustre_yum
   yum_repository:
     name: "{{ item.name }}"
     description: "{{ item.name }}"
@@ -12,6 +12,13 @@
     exclude: "{{ item.exclude | default(omit) }}"
     state: "{{ item.state | default(omit) }}"
   with_items: "{{ lustre_repos | default({}) }}"
+
+- name: Remove conflicting lustre-client
+  tags: yum, kernel, update
+  yum:
+    name: "{{ lustre_packages }}"
+    state: absent
+  when: inventory_hostname in groups.lustre_servers and only_kernel|default(false)
 
 - name: Install Lustre kernel package
   tags: yum, kernel, update
@@ -65,7 +72,7 @@
   when: only_kernel|default(false)
 
 - name: Install Lustre server packages
-  tags: yum, update
+  tags: yum, update, lustre_yum
   yum:
     name: "{{ lustre_server_packages }}"
     state: latest
