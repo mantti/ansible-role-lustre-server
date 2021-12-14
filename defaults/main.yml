@@ -4,11 +4,19 @@ lustre_server_packages:
   - lustre-osd-ldiskfs-mount
   - kmod-lustre-osd-ldiskfs
   - lustre
+  - lustre-resource-agents
+
 #  - lustre-ldiskfs-dkms
 mkfs: "/usr/sbin/mkfs.lustre"
 fsname: "--fsname=lustre"
 mgs: "--mgsnode=10.2.20.10@o2ib --mgsnode=10.2.20.11@o2ib"
-lustre_kernel_pkg: kernel-3.10.0-1160.2.1.el7_lustre
+# lustre_kernel_pkg: kernel-3.10.0-1160.2.1.el7_lustre
+lustre_kernel_pkg: 
+  - kernel-3.10.0-1160.25.1.el7_lustre
+  - kernel-headers-3.10.0-1160.25.1.el7_lustre
+  - kernel-devel-3.10.0-1160.25.1.el7_lustre
+  - kernel-debuginfo-3.10.0-1160.25.1.el7_lustre
+
 lustre_ph1_packages:
   - kmod-mlnx-ofa_kernel
   - mlnx-ofa_kernel
