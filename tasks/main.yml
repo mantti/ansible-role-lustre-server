@@ -155,6 +155,7 @@
     backup: yes
     boot: yes
     fstype: lustre
+    opts: "defaults,noauto"
     path: "{{item.dir}}"
     src: "UUID={{ ansible_facts['devices'][item.dev | regex_replace('/dev/') ]['links']['uuids'][0] }}"
     state: mounted
