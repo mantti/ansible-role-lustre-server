@@ -25,6 +25,7 @@
   yum:
     name: "{{ lustre_kernel_pkg }}"
     state: installed
+    disable_excludes: all
   when: inventory_hostname in groups.lustre_servers and only_kernel|default(false)
 
 - name: Update all except kernel packages

@@ -12,10 +12,10 @@ fsname: "--fsname=lustre"
 mgs: "--mgsnode=10.2.20.10@o2ib --mgsnode=10.2.20.11@o2ib"
 # lustre_kernel_pkg: kernel-3.10.0-1160.2.1.el7_lustre
 lustre_kernel_pkg: 
-  - kernel-3.10.0-1160.25.1.el7_lustre
-  - kernel-headers-3.10.0-1160.25.1.el7_lustre
-  - kernel-devel-3.10.0-1160.25.1.el7_lustre
-  - kernel-debuginfo-3.10.0-1160.25.1.el7_lustre
+  - kernel-3.10.0-1160.49.1.el7_lustre
+  - kernel-headers-3.10.0-1160.49.1.el7_lustre
+  - kernel-devel-3.10.0-1160.49.1.el7_lustre
+  - kernel-debuginfo-3.10.0-1160.49.1.el7_lustre
 
 lustre_ph1_packages:
   - kmod-mlnx-ofa_kernel
